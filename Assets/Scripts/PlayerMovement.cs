@@ -2,42 +2,32 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField] float moveSpeed;
+    [SerializeField] float jumpForce;
+
     float horizontalInput;
-    float moveSpeed = 1f;
-    float jumpForce = 5f;
     bool isGrounded = true;
+    bool isJumping = false;
+
     Rigidbody2D rigid;
     Animator animator;
+    SpriteRenderer spriter;
+
+    [SerializeField] GameObject playerAttackRange;
 
     void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        spriter = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
-
-        if(horizontalInput != 0 && !animator.GetBool("isChange") && !animator.GetBool("isRunning"))
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            animator.SetBool("isRunning", true);
-            animator.SetBool("isChange", true);
-            transform.localScale = new Vector3(horizontalInput * 3, 3, 3);
-            Debug.Log("Running");
-        }
-        else if(horizontalInput != 0 && animator.GetBool("isChange") && animator.GetBool("isRunning"))
-        {
-            animator.SetBool("isChange", false);
-        }
-        else if (horizontalInput == 0 && animator.GetBool("isRunning"))
-        {
-            animator.SetBool("isRunning", false);
-            animator.SetBool("isChange", true);
-        }
-        else
-        {
-            animator.SetBool("isChange", false);
+            isJumping = true;
         }
 
     }
@@ -45,7 +35,18 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         Move();
-        //Jump();
+        if(isJumping)
+        {
+            Jump();
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if(horizontalInput != 0)
+            spriter.flipX = horizontalInput < 0;
+
+        animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
     }
 
     void Move()
@@ -53,5 +54,30 @@ public class PlayerMovement : MonoBehaviour
         Vector2 movement = new Vector2(horizontalInput * moveSpeed, 0);
         rigid.linearVelocityX = movement.x * moveSpeed;
 
+    }
+
+    void Jump()
+    {
+        isJumping = false;
+        Debug.Log("Jump");
+        rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Platform"))
+        {
+            isGrounded = true;
+            playerAttackRange.SetActive(false);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            isGrounded = false;
+            playerAttackRange.SetActive(true);
+        }
     }
 }
