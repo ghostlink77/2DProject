@@ -4,13 +4,15 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
-
+    [SerializeField] Sprite[] jumpSprites;
+    
     float horizontalInput;
     bool isGrounded = true;
     bool isJumping = false;
 
     Rigidbody2D rigid;
     Animator animator;
+    Player player;
     SpriteRenderer spriter;
 
     [SerializeField] GameObject playerAttackRange;
@@ -20,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
+        player = GetComponent<Player>();
     }
 
     void Update()
@@ -34,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (player.indamaged) return;
         Move();
         if(isJumping)
         {
@@ -47,6 +51,18 @@ public class PlayerMovement : MonoBehaviour
             spriter.flipX = horizontalInput < 0;
 
         animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
+
+        if (!isGrounded)
+        {
+            if (rigid.linearVelocityY < 0)
+            {
+                spriter.sprite = jumpSprites[0];
+            }
+            else if (rigid.linearVelocityY > 0)
+            {
+                spriter.sprite = jumpSprites[1];
+            }
+        }
     }
 
     void Move()
