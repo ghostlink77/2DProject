@@ -9,10 +9,11 @@ public class PlayerMovement : MonoBehaviour
     float horizontalInput;
     bool isGrounded = true;
     bool isJumping = false;
+    //bool isWall = false;
+    bool isKnockingBack = false;
 
     Rigidbody2D rigid;
     Animator animator;
-    Player player;
     SpriteRenderer spriter;
 
     [SerializeField] GameObject playerAttackRange;
@@ -22,7 +23,6 @@ public class PlayerMovement : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriter = GetComponent<SpriteRenderer>();
-        player = GetComponent<Player>();
     }
 
     void Update()
@@ -32,17 +32,22 @@ public class PlayerMovement : MonoBehaviour
         {
             isJumping = true;
         }
+        //Debug.Log(isKnockingBack);
 
     }
 
     void FixedUpdate()
     {
-        if (player.indamaged) return;
-        Move();
+        //if (player.indamaged) return;
+        if (!isKnockingBack)
+        {
+            Move();
+        }
         if(isJumping)
         {
             Jump();
         }
+        rigid.linearVelocityY = Mathf.Clamp(rigid.linearVelocityY, -20f, 20f);
     }
 
     private void LateUpdate()
@@ -72,27 +77,37 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-    void Jump()
+    public void Jump()
     {
         isJumping = false;
         Debug.Log("Jump");
-        rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        rigid.AddForceY(jumpForce, ForceMode2D.Impulse);
     }
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void Knockback(int dirc)
     {
-        if(collision.gameObject.CompareTag("Platform"))
+        isKnockingBack = true;
+        rigid.AddForce(new Vector2(dirc * 9, 3), ForceMode2D.Impulse);
+        Invoke("OutKnockback", 0.2f);
+    }
+    void OutKnockback()
+    {
+        isKnockingBack = false;
+    }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
         {
-            isGrounded = true;
+            isGrounded = collision.contacts[0].normal.y > 0.3f;
             playerAttackRange.SetActive(false);
+            //isWall = Mathf.Abs(collision.contacts[0].normal.x) > 0.5f;
         }
     }
-
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Platform"))
         {
             isGrounded = false;
+            //isWall = false;
             playerAttackRange.SetActive(true);
         }
     }

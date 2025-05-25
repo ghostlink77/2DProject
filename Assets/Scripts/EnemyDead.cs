@@ -2,24 +2,32 @@ using UnityEngine;
 
 public class EnemyDead : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    Animator animator;
+    CapsuleCollider2D coll;
+    Rigidbody2D rigid;
+    private void Start()
     {
-        
+        animator = GetComponent<Animator>();
+        coll = GetComponent<CapsuleCollider2D>();
+        rigid = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("PlayerAttackRange"))
         {
+            coll.enabled = false;
+            rigid.bodyType = RigidbodyType2D.Static;
+
+            collision.GetComponentInParent<Player>().KillEnemy();
             Debug.Log("Enemy Dead");
-            Destroy(gameObject);
+            animator.SetTrigger("Dead");
+            Invoke("DestroyEnemy", 0.3f);
         }
+    }
+
+    public void DestroyEnemy()
+    {
+        Destroy(gameObject);
     }
 }
