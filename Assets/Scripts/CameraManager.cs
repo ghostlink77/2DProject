@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class CameraManager : MonoBehaviour
 {
     public CinemachineCamera virtualCamera;
-    [SerializeField] GameObject vCam = null;
+    GameObject vCam = null;
 
     private static CameraManager instance;
     public static CameraManager Instance

@@ -9,11 +9,11 @@ public class GameManager : MonoBehaviour
     int startScore = 0;
     int currScore = 0;
 
-    [SerializeField] SpawnPoint playerSpawnPoint;
-    [SerializeField] CameraManager cameraManager;
-    [SerializeField] GameObject player;
-    [SerializeField] TextMeshProUGUI stockText;
-    [SerializeField] TextMeshProUGUI scoreText;
+    SpawnPoint playerSpawnPoint;
+    CameraManager cameraManager;
+    public GameObject player;
+    TextMeshProUGUI stockText;
+    TextMeshProUGUI scoreText;
 
     private static GameManager instance;
     public static GameManager Instance

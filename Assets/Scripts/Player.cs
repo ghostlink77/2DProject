@@ -10,12 +10,17 @@ public class Player : MonoBehaviour
     Rigidbody2D rigid;
     PlayerMovement playerMovement;
     Animator animator;
+    HPManager hpManager;
     void OnEnable()
     {
         rigid = GetComponent<Rigidbody2D>();
         playerMovement = GetComponent<PlayerMovement>();
         animator = GetComponent<Animator>();
         gameManager = GameManager.Instance;
+
+        hpManager = HPManager.Instance;
+        hpManager.UpdatePlayer(gameObject);
+        hpManager.SetHeartContainers();
     }
 
     void Update()
@@ -55,6 +60,7 @@ public class Player : MonoBehaviour
         if (indamaged) return;
         indamaged = true;
         Hp--;
+        hpManager.SetHeartContainers();
         if (Hp <= 0)
         {
             Die();
@@ -70,6 +76,9 @@ public class Player : MonoBehaviour
 
     public void Die()
     {
+        Hp = 0;
+        hpManager.SetHeartContainers();
+
         rigid.bodyType = RigidbodyType2D.Static;
         animator.SetTrigger("Dead");
         gameManager.PlayerDie();
