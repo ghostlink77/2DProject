@@ -9,11 +9,11 @@ public class GameManager : MonoBehaviour
     int startScore = 0;
     int currScore = 0;
 
-    SpawnPoint playerSpawnPoint;
-    CameraManager cameraManager;
-    GameObject player;
-    TextMeshProUGUI stockText;
-    TextMeshProUGUI scoreText;
+    [SerializeField] SpawnPoint playerSpawnPoint;
+    [SerializeField] CameraManager cameraManager;
+    [SerializeField] GameObject player;
+    [SerializeField] TextMeshProUGUI stockText;
+    [SerializeField] TextMeshProUGUI scoreText;
 
     private static GameManager instance;
     public static GameManager Instance
@@ -50,19 +50,38 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    void Start()
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "MainStage")
+        {
+            SceneSetup();
+        }
+    }
+
+    void SceneSetup()
     {
         cameraManager = CameraManager.Instance;
         playerSpawnPoint = GameObject.Find("PlayerSpawnPoint").GetComponent<SpawnPoint>();
         stockText = GameObject.Find("StockText").GetComponent<TextMeshProUGUI>();
         scoreText = GameObject.Find("Score").GetComponent<TextMeshProUGUI>();
+        playerStock = 3;
+        startScore = 0;
         SpawnPlayer();
     }
 
     public void GetScore(int score)
     {
         currScore += score;
-        scoreText.text = "Score : " + currScore.ToString("D6");
+        scoreText.text = currScore.ToString("D7");
     }
 
     public void SpawnPlayer()
@@ -70,10 +89,16 @@ public class GameManager : MonoBehaviour
         if (playerSpawnPoint != null)
         {
             player = playerSpawnPoint.SpawnObject();
-            cameraManager.virtualCamera.Follow = player.transform;
             stockText.text = "x" + playerStock.ToString();
             currScore = startScore;
-            scoreText.text = "Score : " + currScore.ToString("D6");
+            scoreText.text = currScore.ToString("D7");
+
+            cameraManager.virtualCamera.Follow = player.transform;
+        }
+        else
+        {
+            Debug.LogError("PlayerSpawnPoint is not set in GameManager.");
+            return;
         }
     }
 
@@ -89,13 +114,14 @@ public class GameManager : MonoBehaviour
         Destroy(player, 1f);
         player = null;
         cameraManager.virtualCamera.Follow = null;
-        Invoke("SpawnPlayer", 2f);
 
         playerStock--;
         if (playerStock <= 0)
         {
             GameOver();
+            return;
         }
+        Invoke("SpawnPlayer", 2f);
     }
     public void GameOver()
     {

@@ -6,11 +6,11 @@ public class Player : MonoBehaviour
     public int Hp = 3;
     public bool indamaged = false;
 
-    GameManager gameManager;
+    [SerializeField] GameManager gameManager;
     Rigidbody2D rigid;
     PlayerMovement playerMovement;
     Animator animator;
-    void Start()
+    void OnEnable()
     {
         rigid = GetComponent<Rigidbody2D>();
         playerMovement = GetComponent<PlayerMovement>();
@@ -77,7 +77,7 @@ public class Player : MonoBehaviour
 
     public void KillEnemy()
     {
-        rigid.linearVelocityY = Input.GetButton("Jump") ? 13f : 9f;
+        rigid.linearVelocityY = Input.GetButton("Jump") ? 14.5f : 9f;
         gameManager.GetScore(100);
     }
 

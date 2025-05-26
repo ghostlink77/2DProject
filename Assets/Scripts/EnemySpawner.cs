@@ -9,13 +9,14 @@ public class EnemySpawner : SpawnPoint
     void Start()
     {
         mainCamera = Camera.main;
+        Respawn();
     }
 
     // Update is called once per frame
     void Update()
     {
         scrPos = mainCamera.WorldToViewportPoint(transform.position);
-        bool isOutOfScreen = scrPos.x < 0 || scrPos.x > 1 || scrPos.y < 0 || scrPos.y > 1;
+        bool isOutOfScreen = scrPos.x < -0.1f || scrPos.x > 1.1f || scrPos.y < -0.1f || scrPos.y > 1.1f;
         if (spawned != null && isOutOfScreen)
         {
             return;

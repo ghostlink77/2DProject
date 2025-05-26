@@ -1,9 +1,11 @@
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraManager : MonoBehaviour
 {
     public CinemachineCamera virtualCamera;
+    [SerializeField] GameObject vCam = null;
 
     private static CameraManager instance;
     public static CameraManager Instance
@@ -39,8 +41,24 @@ public class CameraManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
 
-        GameObject vCam = GameObject.FindWithTag("VirtualCamera");
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        vCam = GameObject.Find("CinemachineCamera");
+        if (vCam == null)
+        {
+            return;
+        }
         virtualCamera = vCam.GetComponent<CinemachineCamera>();
     }
 }
